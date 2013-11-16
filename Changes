@@ -1,0 +1,6 @@
+Revision history for Perl extension Pg::Corruption.
+
+0.01  Thu Nov 14 14:35:24 2013
+	- original version; created by h2xs 1.23 with options
+		-AXn Pg::Corruption
+
