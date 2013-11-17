@@ -11,7 +11,7 @@ use Pg::Corruption qw/ connect_db schema_name primary_keys dup_pks/;
 my $att = { AutoCommit=>1 ,  Profile=>0, };
 
 my $opt = new Getopt::Compact
-              #args   => '[option]...',
+              args   => '-d database  scheama.table ',
               modes  => [qw(verbose quiet)],
               struct =>  [ [ [qw(H host)],   'hostname' , '=s' ],
 			   [ [qw(p port)],   'port'     , '=s' ], 
@@ -30,8 +30,10 @@ $o->{help}  and say $opt->usage and exit 1;
 
 my $dh  = connect_db($o);
 my @pks = primary_keys($schema,$table,$dh,$o) ;
-!@pks and say  qq(Exiting. No pk found for table "schema.$table") and exit;
-dup_pks ($schema,$table, \@pks, $dh, $o) ;
+!@pks and say  qq(Exiting... no pk found in "schema.$table") and exit;
 
+my $rows = dup_pks ($schema,$table, \@pks, $dh, $o) ;
+say sprintf '%s -- %s ', ($rows?'not ok':'ok'), "$schema.$table"  if $o->{verbose} ;
+exit $rows;
 
 END { $dh and  $dh->rollback and $dh->disconnect };

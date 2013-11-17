@@ -15,7 +15,7 @@ our @EXPORT_OK = qw(
 	dup_fks 
 ); 
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub schema_name  {
     my ($canonical, $search) = @_ ;
@@ -69,24 +69,20 @@ sub dup_pks {
 	SET LOCAL ENABLE_BITMAPSCAN    = off;
 	SET LOCAL ENABLE_INDEXONLYSCAN = off;
 
-	(my $st = $dh->prepare(<<"")) ->execute() ;
+	(my $st = $dh->prepare(<<"")) ->execute() or say $dh->errstr ;
 	    SELECT @{[join',',@$pks]} , count(*)
 	    FROM   $schema.$table
 	    GROUP BY  @{[join',',@$pks]}
 	    HAVING count(*) > 1
 
-	warn sprintf "Great! No pk corruption in \"%s.%s\"\n", 
-                      $schema, $table  if $o->{verbose} and !$st->rows;
-	#return unless $st->rows;
-	$dh->trace(0);
 	while (my ($h) = $st->fetchrow_hashref) {
 		last unless keys %$h;
 		$h->{$_} //= '\N' for keys %$h;
 		say  join',',@{$h}{keys %$h}   unless $o->{quiet};
     }
-	return $st->rows;
 	$dh->rollback;
 	$st->finish;
+	return $st->rows;
 }
 
 sub attnum2attname {
@@ -140,8 +136,8 @@ sub dup_fks {
 		verify_one_fk(@{$_}{qw/ relid frelid key fkey/}, $dh,$o) or return;
 	}
 
-	warn sprintf "Great! No fk corruption in \"%s\"\n",
-                      $fk->[0]{relid}   unless $o->{quiet} ;
+	#warn sprintf "Great! No fk corruption in \"%s\"\n",
+    #                  $fk->[0]{relid}   unless $o->{quiet} ;
 	'ok';
 }
 sub verify_one_fk {

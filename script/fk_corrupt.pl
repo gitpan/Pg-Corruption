@@ -29,7 +29,9 @@ $o->{help}  and say $opt->usage and exit 1;
 
 my $dh  =  connect_db($o);
 my @fks =  foreign_keys($schema, $table, $dh);
-!@fks and  say  qq(Exiting. "$schema.$table" has no fk.) and exit;
-dup_fks ([@fks], $dh,$o);
+!@fks and  say  qq(Exiting... no fk found in "$schema.$table" ) and exit;
+my $ret = dup_fks ([@fks], $dh,$o);
+say sprintf '%s -- %s ', ($ret? 'ok':'not ok'), "$schema.$table"  if $o->{verbose} ;
+exit ($ret//'' cmp 'ok'? 1 : 0);
 
 END { $dh and $dh->rollback and   $dh->disconnect }

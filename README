@@ -28,7 +28,6 @@ Getopt::Compact
 And requires the modules bellow only for testing:
 Test::Pod::Coverage
 Test::Pod
-Test::Exception
 Test::HasVersion
 Test::Dependencies
 Test::CPAN::Meta

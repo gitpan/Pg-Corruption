@@ -1,6 +1,5 @@
 .PHONY: $(shell ls)
 .SILENT: 
-#.DEFAULT_GOAL = pk_corrupt.pl
 .DEFAULT_GOAL = fk_corrupt.pl
 
 MODULES  =  -MData::Dumper -MCarp  
@@ -20,9 +19,9 @@ current = 30_fkeys.t
 current = 31_attnum2attname.t
 
 db      = lessons
+table   = fk.person_1
 table   = fk.house
-table   = fk.sales_1
-#pcopt   = -q
+pcopt   = -v
 
 all: $(current)
 #all = prove
@@ -33,13 +32,14 @@ prove:
 	perl -w -Mstrict -Mblib  $(MODULES)   $@  
 pk_corrupt.pl pc:
 	perl -Mblib=../blib  ../blib/script/pk_corrupt.pl  $(pcopt) -d $(db)  $(table)
-fk_corrupt.pl fc:
+fk_corrupt.pl fc: 
 	perl -Mblib=../blib  ../blib/script/fk_corrupt.pl  $(pcopt) -d $(db)  $(table)
 cp:
 	cp  ../blib/lib/Pg/Corruption.pm    ../lib/Pg
 	cp  ../blib/script/*    ../script/
 w:
 	chmod -R u+w  ../blib/lib/Pg
+	chmod -R u+w  ../blib/script
 vi: w
 	$(vim) $(current)  ../blib/lib/Pg/Corruption.pm  
 pvi: w
